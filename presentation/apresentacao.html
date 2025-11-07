@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Picking System v2.0 - Apresentação</title>
+  <link rel="icon" type="image/x-icon" href="../binho.ico">
+  <link rel="stylesheet" href="presentation-styles.css">
+</head>
+<body>
+  <!-- Slide de Capa -->
+  <section class="slide active" id="slide-0">
+    <div class="slide-content">
+      <h1 class="title-main">Sistema de Picking v2.0</h1>
+      <p class="subtitle">Binho Transportes</p>
+      <div class="logo-container">
+        <img src="../binho-logo.png" alt="Logo da Binho Transportes" class="logo" style="margin-bottom: 20px;">
+      </div>
+      <p class="subtitle-small">Solução completa para separação de pedidos</p>
+    </div>
+  </section>
+
+  <!-- Slide 1: Etapa de Gestão (Líderes) -->
+  <section class="slide" id="slide-1">
+    <div class="slide-content">
+      <h2>👔 Etapa 1: Gestão e Atribuição (Líderes)</h2>
+      <div class="two-columns">
+        <div class="text-content">
+          <h3>Responsabilidade dos Líderes:</h3>
+          <p style="margin-bottom: 20px; font-size: 1.1rem; line-height: 1.6;">
+            Antes da separação começar, os líderes são responsáveis por configurar e atribuir as tarefas através de um <strong>Formulário Google</strong>.
+          </p>
+          <h3>Informações Gerenciadas:</h3>
+          <ul>
+            <li>📋 <strong>CTRC:</strong> Número do conhecimento de transporte</li>
+            <li>🏢 <strong>Filial:</strong> Local da separação</li>
+            <li>👤 <strong>Conferente:</strong> Pessoa designada para a separação</li>
+            <li>📅 <strong>Data/Hora:</strong> Quando a tarefa foi criada</li>
+          </ul>
+          <div class="info-box warning" style="margin-top: 20px;">
+            <strong>🔗 Integração:</strong> Os dados do formulário são automaticamente enviados para o sistema de picking, tornando os CTRCs disponíveis para separação.
+          </div>
+        </div>
+        <div class="image-content">
+          <!-- Vídeo do formulário -->
+          <video id="formulario-video" autoplay loop muted playsinline class="screenshot" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <source src="videos/formulario-demo.mp4" type="video/mp4">
+            <source src="videos/formulario-demo.webm" type="video/webm">
+          </video>
+          <div class="screenshot-placeholder" style="display:none;">
+            <p>🎬 Aguardando vídeo:<br>
+              <strong>videos/formulario-demo.mp4</strong>
+            </p>
+            <p style="margin-top: 15px; font-size: 0.9em;">Vídeo curto mostrando o formulário Google usado pelos líderes</p>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 30px; padding: 20px; background: #FFF3E0; border-left: 5px solid #FF9800; border-radius: 8px;">
+        <h3 style="color: #F57C00; margin-bottom: 10px;">⚙️ Fluxo do Processo:</h3>
+        <p style="font-size: 1.05rem; line-height: 1.8;">
+          <strong>1.</strong> Líder preenche o formulário Google com CTRC, Filial e Conferente<br>
+          <strong>2.</strong> Dados são enviados automaticamente via webhook<br>
+          <strong>3.</strong> Sistema disponibiliza o CTRC para o conferente designado<br>
+          <strong>4.</strong> Conferente acessa o sistema e inicia a separação
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 2: Visão Geral -->
+  <section class="slide" id="slide-2">
+    <div class="slide-content">
+      <h2>Visão Geral do Sistema</h2>
+      <div class="content-center">
+        <h3>Principais Funcionalidades:</h3>
+        <ul style="font-size: 1.3rem; line-height: 2.5;">
+          <li>✓ Seleção de filial</li>
+          <li>✓ Listagem de CTRCs</li>
+          <li>✓ Separação com bipagem por scanner</li>
+          <li>✓ Controle de quantidades</li>
+          <li>✓ Histórico de pickings</li>
+          <li>✓ Restauração de progresso</li>
+          <li>✓ Interface responsiva</li>
+        </ul>
+        <div class="info-box" style="margin-top: 40px;">
+          <strong>💡 Destaque:</strong> Sistema 100% web, funciona em qualquer dispositivo com navegador e scanner bluetooth!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Vídeo Demonstrativo -->
+  <section class="slide" id="slide-3">
+    <div class="slide-content">
+      <h2>🎥 Demonstração Completa do Sistema</h2>
+      <p class="subtitle">Veja o processo completo de picking em ação</p>
+      <div class="video-container">
+        <video id="demo-video" controls width="100%" preload="metadata">
+          <source src="videos/demo-picking.mp4" type="video/mp4">
+          <source src="videos/demo-picking.webm" type="video/webm">
+          Seu navegador não suporta a tag de vídeo.
+        </video>
+        <div class="video-placeholder" style="display: none;">
+          <p>🎬 Vídeo demonstrativo será carregado aqui</p>
+          <p style="margin-top: 20px; font-size: 0.9em; color: #757575;">
+            Coloque o vídeo na pasta: <code>videos/demo-picking.mp4</code>
+          </p>
+        </div>
+      </div>
+      <div class="video-description">
+        <h3>O que você verá no vídeo:</h3>
+        <ul>
+          <li>🏢 Seleção de filial</li>
+          <li>📋 Escolha do CTRC</li>
+          <li>📦 Processo de bipagem</li>
+          <li>⚙️ Configuração de unidades por caixa</li>
+          <li>✅ Finalização do picking</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: Passo 1 - Seleção de Filial -->
+  <section class="slide" id="slide-4">
+    <div class="slide-content">
+      <h2>Passo 1: Seleção de Filial</h2>
+      <div class="two-columns">
+        <div class="text-content">
+          <h3>Como funciona:</h3>
+          <ol>
+            <li>Ao iniciar o sistema, a tela de seleção de filiais é exibida</li>
+            <li>As filiais são carregadas automaticamente da API</li>
+            <li>Cada filial é exibida em um card colorido</li>
+            <li>Clique na filial desejada para prosseguir</li>
+          </ol>
+          <div class="info-box">
+            <strong>💡 Dica:</strong> As cores das filiais são geradas automaticamente para fácil identificação visual.
+          </div>
+        </div>
+        <div class="image-content">
+          <img src="screenshots/selecao-filial.png" alt="Seleção de Filial" class="screenshot" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="screenshot-placeholder" style="display:none;">
+            <p>📸 Aguardando screenshot:<br>selecao-filial.png</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: Passo 2 - Listagem de CTRCs -->
+  <section class="slide" id="slide-5">
+    <div class="slide-content">
+      <h2>Passo 2: Listagem de CTRCs</h2>
+      <div class="two-columns">
+        <div class="text-content">
+          <h3>Como funciona:</h3>
+          <ol>
+            <li>Após selecionar a filial, os CTRCs disponíveis são listados</li>
+            <li>Cada CTRC mostra informações básicas</li>
+            <li>Botão "📜 Histórico" mostra pickings finalizados</li>
+            <li>Clique em um CTRC para iniciar a separação</li>
+          </ol>
+          <div class="info-box warning">
+            <strong>⚠️ Importante:</strong> Se houver progresso salvo, o sistema perguntará se deseja restaurar.
+          </div>
+        </div>
+        <div class="image-content">
+          <img src="screenshots/lista-ctrcs.png" alt="Lista de CTRCs" class="screenshot" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="screenshot-placeholder" style="display:none;">
+            <p>📸 Aguardando screenshot:<br>lista-ctrcs.png</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 6: Passo 3 - Tela de Separação -->
+  <section class="slide" id="slide-6">
+    <div class="slide-content">
+      <h2>Passo 3: Tela de Separação</h2>
+      <div class="two-columns">
+        <div class="text-content">
+          <h3>Elementos da tela:</h3>
+          <ul>
+            <li><strong>Dados do CTRC:</strong> Informações completas do pedido</li>
+            <li><strong>Tabela de itens:</strong> Lista todos os produtos a serem separados</li>
+            <li><strong>Status de cada item:</strong> 
+              <ul class="sub-list">
+                <li><span class="status-badge status-pendente">⬤ Pendente</span> - Não iniciado</li>
+                <li><span class="status-badge status-parcial">⬤ Parcial</span> - Parcialmente bipado</li>
+                <li><span class="status-badge status-finalizado">⬤ Finalizado</span> - Completo</li>
+              </ul>
+            </li>
+            <li><strong>Campo invisível:</strong> Captura automática do scanner</li>
+          </ul>
+        </div>
+        <div class="image-content">
+          <div class="image-carousel">
+            <img src="screenshots/tela-separacao.png" alt="Tela de Separação 1" class="screenshot carousel-image active" 
+                 onerror="this.style.display='none'">
+            <img src="screenshots/tela-separacao2.png" alt="Tela de Separação 2" class="screenshot carousel-image" 
+                 onerror="this.style.display='none'">
+            <div class="screenshot-placeholder carousel-placeholder">
+              <p>📸 Aguardando screenshots:<br>tela-separacao.png<br>tela-separacao2.png</p>
+            </div>
+            <div class="carousel-indicators">
+              <span class="indicator active" data-index="0"></span>
+              <span class="indicator" data-index="1"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: Passo 4 - Bipagem de Produtos -->
+  <section class="slide" id="slide-7">
+    <div class="slide-content">
+      <h2>Passo 4: Bipagem de Produtos</h2>
+      <div class="two-columns">
+        <div class="text-content">
+          <h3>Processo de bipagem:</h3>
+          <ol>
+            <li>Bipe o código de barras do produto com o scanner</li>
+            <li>O sistema identifica automaticamente o item</li>
+            <li>A quantidade bipada é incrementada</li>
+            <li>A linha muda de cor conforme o progresso</li>
+            <li>Mensagem de sucesso é exibida</li>
+          </ol>
+          <div class="info-box success">
+            <strong>✓ Automático:</strong> O foco retorna automaticamente para o campo de bipagem após qualquer interação.
+          </div>
+        </div>
+        <div class="image-content">
+          <img src="screenshots/bipagem.png" alt="Processo de Bipagem" class="screenshot" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="screenshot-placeholder" style="display:none;">
+            <p>📸 Aguardando screenshot:<br>bipagem.png</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 8: Passo 5 - Unidades por Caixa -->
+  <section class="slide" id="slide-8">
+    <div class="slide-content">
+      <h2>Passo 5: Configuração de Unidades por Caixa</h2>
+      <div class="two-columns">
+        <div class="text-content">
+          <h3>Para produtos unitários:</h3>
+          <ol>
+            <li>Primeira vez que bipar um produto "UN", aparece um modal</li>
+            <li>Digite quantas unidades vêm em uma caixa</li>
+            <li>O sistema salva essa configuração</li>
+            <li>Próximas bipagens já usam o valor configurado</li>
+            <li>Incrementa automaticamente a quantidade correta</li>
+          </ol>
+          <div class="info-box">
+            <strong>💾 Salvo:</strong> A configuração é salva permanentemente para o produto.
+          </div>
+        </div>
+        <div class="image-content">
+          <img src="screenshots/modal-unidades.png" alt="Modal Unidades" class="screenshot" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="screenshot-placeholder" style="display:none;">
+            <p>📸 Aguardando screenshot:<br>modal-unidades.png</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: Passo 6 - Finalização -->
+  <section class="slide" id="slide-9">
+    <div class="slide-content">
+      <h2>Passo 6: Finalização do Picking</h2>
+      <div class="two-columns">
+        <div class="text-content">
+          <h3>Como finalizar:</h3>
+          <ol>
+            <li>Quando todos os itens estiverem completos, o botão "Finalizar" é habilitado</li>
+            <li>Clique no botão "✓ Finalizar Picking"</li>
+            <li>Confirme a finalização no modal</li>
+            <li>Os dados são enviados para a API</li>
+            <li>O picking é salvo no histórico</li>
+            <li>Retorna para a lista de CTRCs</li>
+          </ol>
+          <div class="info-box success">
+            <strong>✓ Registrado:</strong> O picking fica salvo no histórico com data/hora e usuário.
+          </div>
+        </div>
+        <div class="image-content">
+          <img src="screenshots/finalizacao.png" alt="Finalização" class="screenshot" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="screenshot-placeholder" style="display:none;">
+            <p>📸 Aguardando screenshot:<br>finalizacao.png</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: Histórico -->
+  <section class="slide" id="slide-10">
+    <div class="slide-content">
+      <h2>Histórico de Pickings</h2>
+      <div class="two-columns">
+        <div class="text-content">
+          <h3>Funcionalidades:</h3>
+          <ul>
+            <li>Visualizar todos os pickings finalizados</li>
+            <li>Informações completas de cada picking</li>
+            <li>Data e hora de finalização</li>
+            <li>Usuário responsável</li>
+            <li>Todos os itens e quantidades</li>
+            <li>Mantém últimos 50 registros</li>
+          </ul>
+          <div class="info-box">
+            <strong>📊 Acesso:</strong> Clique em "📜 Histórico" na tela de CTRCs.
+          </div>
+        </div>
+        <div class="image-content">
+          <img src="screenshots/historico.png" alt="Tela de Histórico" class="screenshot" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="screenshot-placeholder" style="display:none;">
+            <p>📸 Aguardando screenshot:<br>historico.png</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: Restauração de Progresso -->
+  <section class="slide" id="slide-11">
+    <div class="slide-content">
+      <h2>Restauração de Progresso</h2>
+      <div class="two-columns">
+        <div class="text-content">
+          <h3>Como funciona:</h3>
+          <ol>
+            <li>O sistema salva automaticamente o progresso a cada bipagem</li>
+            <li>Se a página for recarregada durante uma separação</li>
+            <li>Ao abrir o mesmo CTRC, pergunta se deseja restaurar</li>
+            <li>Se confirmar, todas as quantidades bipadas são restauradas</li>
+            <li>Continue de onde parou!</li>
+          </ol>
+          <div class="info-box warning">
+            <strong>🔄 Inteligente:</strong> Só pergunta se houve recarregamento real da página.
+          </div>
+        </div>
+        <div class="image-content">
+          <img src="screenshots/restaurar.png" alt="Modal Restaurar Progresso" class="screenshot" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <div class="screenshot-placeholder" style="display:none;">
+            <p>📸 Aguardando screenshot:<br>restaurar.png</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 12: Tecnologias -->
+  <section class="slide" id="slide-12">
+    <div class="slide-content">
+      <h2>Tecnologias Utilizadas</h2>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <h3>Frontend</h3>
+          <ul>
+            <li>HTML5</li>
+            <li>CSS3 (Variáveis CSS)</li>
+            <li>JavaScript ES6+</li>
+            <li>Progressive Web App</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h3>Armazenamento</h3>
+          <ul>
+            <li>LocalStorage</li>
+            <li>SessionStorage</li>
+            <li>Cache API</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h3>Integração</h3>
+          <ul>
+            <li>REST API</li>
+            <li>Fetch API</li>
+            <li>JSON</li>
+          </ul>
+        </div>
+        <div class="tech-card">
+          <h3>Hardware</h3>
+          <ul>
+            <li>Scanner de código de barras</li>
+            <li>Dispositivos móveis</li>
+            <li>Touch screen</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 13: Slide Final -->
+  <section class="slide" id="slide-13">
+    <div class="slide-content">
+      <h1 class="title-main">Obrigado!</h1>
+      <p class="subtitle">Sistema de Picking v2.0</p>
+      <div class="logo-container">
+        <img src="../binho-logo.png" alt="Logo da Binho Transportes" class="logo" style="margin-bottom: 20px;">
+      </div>
+      <p class="subtitle-small">Binho Transportes</p>
+      
+      <!-- Créditos / Desenvolvedor -->
+      <div style="margin-top: 60px; padding-top: 25px; border-top: 1px solid rgba(0,0,0,0.15);">
+        <p style="font-size: 15px; color: #757575; font-weight: 400; margin: 0; letter-spacing: 0.5px;">
+          Desenvolvido por
+        </p>
+        <p style="font-size: 22px; color: #212121; font-weight: 600; margin: 8px 0; letter-spacing: 1px;">
+          Thiago Alves
+        </p>
+        <p style="font-size: 14px; color: #757575; font-weight: 400; margin: 0;">
+          Analista de Desenvolvimento
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Navegação -->
+  <div class="navigation">
+    <button id="prev-btn" class="nav-btn">◀ Anterior</button>
+    <div id="slide-indicator" class="slide-indicator"></div>
+    <button id="next-btn" class="nav-btn">Próximo ▶</button>
+  </div>
+
+  <script src="presentation-script.js"></script>
+</body>
+</html>

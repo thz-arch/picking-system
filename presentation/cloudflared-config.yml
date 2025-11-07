@@ -1,0 +1,12 @@
+tunnel: YOUR_TUNNEL_ID
+credentials-file: C:\Users\user\.cloudflared\YOUR_TUNNEL_ID.json
+
+ingress:
+  - hostname: doc.tritton.dev.br
+    service: http://localhost:9000
+    originRequest:
+      # Disable buffering to allow streaming and WebSocket
+      noTLSVerify: false
+      # Forward all headers
+      httpHostHeader: doc.tritton.dev.br
+  - service: http_status:404

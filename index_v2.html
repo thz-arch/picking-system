@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Picking Interface v2.0</title>
+  <link rel="icon" type="image/x-icon" href="binho.ico">
+  <link rel="stylesheet" href="style_v2.css?v=20251028v22">
+</head>
+<body>
+
+  <div class="container">
+    <!-- Logo -->
+    <div id="logo-topo">
+      <img src="binho-logo.png" alt="Binho Transportes">
+    </div>
+    <h1>Separação de Pedidos v2.0</h1>
+
+    <!-- Tela de seleção de filial -->
+    <section id="telaFiliais">
+      <h2>Selecione a Filial</h2>
+      <div id="listaFiliais" class="filiais-grid"></div>
+    </section>
+
+    <!-- Tela de lista de CTRCs -->
+    <section id="telaCtrcList" style="display:none;">
+      <button id="btnVoltarFiliais" class="btn-secondary mb-md">
+        <span>←</span>
+        <span>Trocar Filial</span>
+      </button>
+      <h2>Selecione o CTRC para Separação</h2>
+      <div id="filialAtual" class="filial-badge"></div>
+      <ul id="listaCtrcs"></ul>
+    </section>
+
+    <!-- Tela de separação -->
+    <section id="telaSeparacao" style="display:none;">
+      <button id="btnVoltar" class="btn-secondary">
+        <span>←</span>
+        <span>Voltar</span>
+      </button>
+      
+      <h2>Dados do CTRC</h2>
+      <div id="dadosCtrc"></div>
+      
+      <h2>Itens do Picking</h2>
+      
+      <!-- Campo oculto para scanner -->
+      <input 
+        type="text" 
+        id="inputBipagemGlobal" 
+        autocomplete="off"
+        readonly
+        style="position:absolute; opacity:0; width:1px; height:1px; top:0; left:0;"
+        tabindex="1">
+      
+      <div id="resultado"></div>
+      
+      <button id="btnFinalizarPicking" class="btn-success btn-lg" disabled>
+        <span>✓</span>
+        <span>Finalizar Picking</span>
+      </button>
+    </section>
+    
+    <!-- Tela de histórico -->
+    <section id="telaHistorico" style="display:none;">
+      <button id="btnVoltarHistorico" class="btn-secondary mb-md">
+        <span>←</span>
+        <span>Voltar</span>
+      </button>
+      
+      <h2>Histórico de Pickings</h2>
+      <div id="historicoContainer"></div>
+    </section>
+  </div>
+
+  <!-- Scripts -->
+  <script src="utils.js?v=20251028v22"></script>
+  <script src="ui-components.js?v=20251028v22"></script>
+  <script src="picking-manager.js?v=20251028v22"></script>
+  <script src="main_v2.js?v=20251028v22"></script>
+
+</body>
+</html>
