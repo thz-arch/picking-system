@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+
+# VS Code / IDE
+.vscode/
+*.code-workspace
+.idea/
+
+# Logs e backups
+*.log
+backups/
+**/*.backup
+picking.log
+
+# SO / Sistema
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Apresentação (se usar bundler)
+presentation/node_modules/
+presentation/dist/
