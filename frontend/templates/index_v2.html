@@ -7,15 +7,15 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Picking Interface v2.0</title>
-  <link rel="icon" type="image/x-icon" href="binho.ico">
-  <link rel="stylesheet" href="style_v2.css?v=20251028v22">
+  <link rel="icon" type="image/x-icon" href="/static/img/binho.ico">
+  <link rel="stylesheet" href="/static/css/style_v2.css?v=20251028v22">
 </head>
 <body>
 
   <div class="container">
     <!-- Logo -->
     <div id="logo-topo">
-      <img src="binho-logo.png" alt="Binho Transportes">
+      <img src="/static/img/binho-logo.png" alt="Binho Transportes">
     </div>
     <h1>Separação de Pedidos v2.0</h1>
 
@@ -67,10 +67,16 @@
     
     <!-- Tela de histórico -->
     <section id="telaHistorico" style="display:none;">
-      <button id="btnVoltarHistorico" class="btn-secondary mb-md">
-        <span>←</span>
-        <span>Voltar</span>
-      </button>
+      <div class="flex-row mb-md" style="display: flex; gap: 10px;">
+        <button id="btnVoltarHistorico" class="btn-secondary">
+          <span>←</span>
+          <span>Voltar</span>
+        </button>
+        <button id="btnExportarHistorico" class="btn-info">
+          <span>💾</span>
+          <span>Exportar JSON</span>
+        </button>
+      </div>
       
       <h2>Histórico de Pickings</h2>
       <div id="historicoContainer"></div>
@@ -78,10 +84,10 @@
   </div>
 
   <!-- Scripts -->
-  <script src="utils.js?v=20251028v22"></script>
-  <script src="ui-components.js?v=20251028v22"></script>
-  <script src="picking-manager.js?v=20251028v22"></script>
-  <script src="main_v2.js?v=20251028v22"></script>
+  <script src="/static/js/utils.js?v=20251028v22"></script>
+  <script src="/static/js/ui-components.js?v=20251028v22"></script>
+  <script src="/static/js/picking-manager.js?v=20251028v22"></script>
+  <script src="/static/js/main_v2.js?v=20251028v22"></script>
 
 </body>
 </html>

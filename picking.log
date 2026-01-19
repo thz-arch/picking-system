@@ -26719,3 +26719,70 @@
 2025-11-07 14:12:12,190 - __main__ - INFO - GET /binho.ico - IP: 127.0.0.1
 2025-11-07 14:12:12,191 - __main__ - INFO - GET /binho.ico - Status: 200
 2025-11-07 14:12:12,191 - werkzeug - INFO - 127.0.0.1 - - [07/Nov/2025 14:12:12] "GET /binho.ico HTTP/1.1" 200 -
+2026-01-19 14:07:18,104 - __main__ - INFO - Iniciando servidor Picking v2.0 na porta 8000
+2026-01-19 14:07:18,115 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.0.2:8000
+2026-01-19 14:07:18,115 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-01-19 14:07:48,780 - __main__ - INFO - GET /api/health - IP: 127.0.0.1
+2026-01-19 14:07:48,781 - __main__ - INFO - GET /api/health - Status: 200
+2026-01-19 14:07:48,783 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:07:48] "GET /api/health HTTP/1.1" 200 -
+2026-01-19 14:09:02,779 - __main__ - INFO - GET / - IP: 127.0.0.1
+2026-01-19 14:09:02,779 - __main__ - INFO - Acesso à página inicial
+2026-01-19 14:09:02,784 - __main__ - INFO - GET / - Status: 200
+2026-01-19 14:09:02,785 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:02] "GET / HTTP/1.1" 200 -
+2026-01-19 14:09:02,869 - __main__ - INFO - GET /static/css/style_v2.css - IP: 127.0.0.1
+2026-01-19 14:09:02,880 - __main__ - INFO - GET /static/js/utils.js - IP: 127.0.0.1
+2026-01-19 14:09:02,890 - __main__ - INFO - GET /static/img/binho-logo.png - IP: 127.0.0.1
+2026-01-19 14:09:02,901 - __main__ - INFO - GET /static/js/utils.js - Status: 200
+2026-01-19 14:09:02,901 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:02] "GET /static/js/utils.js?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:02,902 - __main__ - INFO - GET /static/css/style_v2.css - Status: 200
+2026-01-19 14:09:02,902 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:02] "GET /static/css/style_v2.css?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:02,903 - __main__ - INFO - GET /static/img/binho-logo.png - Status: 200
+2026-01-19 14:09:02,904 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:02] "GET /static/img/binho-logo.png HTTP/1.1" 200 -
+2026-01-19 14:09:02,970 - __main__ - INFO - GET /static/js/main_v2.js - IP: 127.0.0.1
+2026-01-19 14:09:02,971 - __main__ - INFO - GET /static/js/main_v2.js - Status: 200
+2026-01-19 14:09:02,971 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:02] "GET /static/js/main_v2.js?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:02,973 - __main__ - INFO - GET /static/js/picking-manager.js - IP: 127.0.0.1
+2026-01-19 14:09:02,974 - __main__ - INFO - GET /static/js/ui-components.js - IP: 127.0.0.1
+2026-01-19 14:09:02,974 - __main__ - INFO - GET /static/js/picking-manager.js - Status: 200
+2026-01-19 14:09:02,975 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:02] "GET /static/js/picking-manager.js?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:02,976 - __main__ - INFO - GET /static/js/ui-components.js - Status: 200
+2026-01-19 14:09:02,976 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:02] "GET /static/js/ui-components.js?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:03,147 - __main__ - INFO - GET /api/config - IP: 127.0.0.1
+2026-01-19 14:09:03,147 - __main__ - INFO - GET /api/config - Status: 200
+2026-01-19 14:09:03,148 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /api/config HTTP/1.1" 200 -
+2026-01-19 14:09:03,251 - __main__ - INFO - GET /api/filiais - IP: 127.0.0.1
+2026-01-19 14:09:03,252 - __main__ - INFO - API /api/filiais acessada
+2026-01-19 14:09:03,252 - __main__ - INFO - GET /api/filiais - Status: 200
+2026-01-19 14:09:03,252 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /api/filiais HTTP/1.1" 200 -
+2026-01-19 14:09:03,833 - __main__ - INFO - GET / - IP: 127.0.0.1
+2026-01-19 14:09:03,833 - __main__ - INFO - Acesso à página inicial
+2026-01-19 14:09:03,834 - __main__ - INFO - GET / - Status: 200
+2026-01-19 14:09:03,834 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET / HTTP/1.1" 200 -
+2026-01-19 14:09:03,848 - __main__ - INFO - GET /static/css/style_v2.css - IP: 127.0.0.1
+2026-01-19 14:09:03,848 - __main__ - INFO - GET /static/js/utils.js - IP: 127.0.0.1
+2026-01-19 14:09:03,849 - __main__ - INFO - GET /static/css/style_v2.css - Status: 200
+2026-01-19 14:09:03,851 - __main__ - INFO - GET /static/img/binho-logo.png - IP: 127.0.0.1
+2026-01-19 14:09:03,854 - __main__ - INFO - GET /static/js/utils.js - Status: 200
+2026-01-19 14:09:03,855 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /static/css/style_v2.css?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:03,856 - __main__ - INFO - GET /static/js/picking-manager.js - IP: 127.0.0.1
+2026-01-19 14:09:03,857 - __main__ - INFO - GET /static/js/ui-components.js - IP: 127.0.0.1
+2026-01-19 14:09:03,857 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /static/js/utils.js?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:03,859 - __main__ - INFO - GET /static/js/main_v2.js - IP: 127.0.0.1
+2026-01-19 14:09:03,859 - __main__ - INFO - GET /static/img/binho-logo.png - Status: 200
+2026-01-19 14:09:03,861 - __main__ - INFO - GET /static/js/picking-manager.js - Status: 200
+2026-01-19 14:09:03,863 - __main__ - INFO - GET /static/js/ui-components.js - Status: 200
+2026-01-19 14:09:03,863 - __main__ - INFO - GET /static/js/main_v2.js - Status: 200
+2026-01-19 14:09:03,864 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /static/js/main_v2.js?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:03,864 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /static/js/picking-manager.js?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:03,865 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /static/js/ui-components.js?v=20251028v22 HTTP/1.1" 200 -
+2026-01-19 14:09:03,865 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /static/img/binho-logo.png HTTP/1.1" 200 -
+2026-01-19 14:09:03,882 - __main__ - INFO - GET /api/config - IP: 127.0.0.1
+2026-01-19 14:09:03,882 - __main__ - INFO - GET /api/config - Status: 200
+2026-01-19 14:09:03,883 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /api/config HTTP/1.1" 200 -
+2026-01-19 14:09:03,893 - __main__ - INFO - GET /api/filiais - IP: 127.0.0.1
+2026-01-19 14:09:03,893 - __main__ - INFO - API /api/filiais acessada
+2026-01-19 14:09:03,894 - __main__ - INFO - GET /api/filiais - Status: 200
+2026-01-19 14:09:03,895 - werkzeug - INFO - 127.0.0.1 - - [19/Jan/2026 14:09:03] "GET /api/filiais HTTP/1.1" 200 -
