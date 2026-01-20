@@ -1,5 +1,5 @@
 # Script de Inicializacao - Picking System v2.0 + Checklist
-# Execute: .\start_v2.ps1
+# Execute: .\start_all.ps1
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  Sistema Completo - Porta 8000" -ForegroundColor Cyan
@@ -8,6 +8,7 @@ Write-Host "  - Checklist CTRC PWA" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
+# Configurações
 $venvPath = "C:/Users/user/picking/.venv/Scripts/python.exe"
 $backendPath = "backend/app_v2.py"
 $checklistPath = "checklist"

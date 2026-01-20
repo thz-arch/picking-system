@@ -1,10 +1,11 @@
-from flask import Flask, jsonify, send_from_directory, request, render_template
+from flask import Flask, jsonify, send_from_directory, request, render_template, Response
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import logging
 from datetime import datetime
 import json
+import requests
 
 # Carrega variáveis de ambiente
 load_dotenv()
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 base_dir = os.path.abspath(os.path.dirname(__file__))
 template_dir = os.path.join(base_dir, '../frontend/templates')
 static_dir = os.path.join(base_dir, '../frontend/static')
+checklist_dir = os.path.join(base_dir, '../checklist/dist')
 
 app = Flask(__name__,
             template_folder=template_dir,
@@ -39,11 +41,41 @@ CORS(app, resources={
     }
 })
 
-# Rota para servir a aplicação principal
+# Rota para servir a aplicação principal (Picking)
 @app.route('/')
 def index():
-    logger.info('Acesso à página inicial')
+    logger.info('Acesso à página inicial - Picking')
     return render_template('index_v2.html')
+
+# Proxy para o Checklist (Vite dev server na porta 5173)
+CHECKLIST_DEV_SERVER = 'http://localhost:5173'
+
+@app.route('/checklist')
+@app.route('/checklist/')
+def checklist_index():
+    logger.info('Proxy: Acesso à página do Checklist')
+    try:
+        resp = requests.get(f'{CHECKLIST_DEV_SERVER}/')
+        return Response(resp.content, status=resp.status_code, content_type=resp.headers.get('content-type'))
+    except requests.exceptions.ConnectionError:
+        return jsonify({
+            "error": "Checklist não disponível", 
+            "message": "Servidor Vite não está rodando na porta 5173"
+        }), 503
+
+@app.route('/checklist/<path:path>')
+def checklist_proxy(path):
+    try:
+        url = f'{CHECKLIST_DEV_SERVER}/{path}'
+        resp = requests.get(url, stream=True)
+        
+        # Remove headers que podem causar problemas
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+        
+        return Response(resp.content, status=resp.status_code, headers=headers)
+    except requests.exceptions.ConnectionError:
+        return jsonify({"error": "Checklist dev server não disponível"}), 503
 
 # API para fornecer configurações ao frontend
 @app.route('/api/config')
