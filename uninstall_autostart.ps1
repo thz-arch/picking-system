@@ -1,7 +1,7 @@
 # Script para remover a tarefa agendada do Windows
 # Execute este script como Administrador
 
-$TaskName = "Picking v2.0 Auto Start"
+$TaskName = "Picking v2.0 + Checklist Auto Start"
 
 try {
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
