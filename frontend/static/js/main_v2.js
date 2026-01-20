@@ -6,10 +6,24 @@
 // Inicialização
 let pickingManager;
 let filialSelecionada = null;
-const API_URL = 'https://tritton.dev.br/webhook/picking-process';
+let API_URL = 'https://tritton.dev.br/webhook/picking-process';
 const API_LOCAL = window.location.origin;
 
-document.addEventListener('DOMContentLoaded', () => {
+async function carregarConfiguracao() {
+  try {
+    const response = await fetch(`${API_LOCAL}/api/config`);
+    if (response.ok) {
+      const config = await response.json();
+      API_URL = config.API_URL || API_URL;
+      Utils.Logger.info('⚙️ Configurações carregadas do backend', config);
+    }
+  } catch (err) {
+    Utils.Logger.aviso('⚠️ Não foi possível carregar configurações do backend, usando padrão', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await carregarConfiguracao();
   Utils.Logger.info('🚀 Picking System v2.0 iniciado');
   
   // Inicializa o gerenciador
@@ -22,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const telaHistorico = document.getElementById('telaHistorico');
   const btnVoltar = document.getElementById('btnVoltar');
   const btnVoltarHistorico = document.getElementById('btnVoltarHistorico');
+  const btnExportarHistorico = document.getElementById('btnExportarHistorico');
   const btnVoltarFiliais = document.getElementById('btnVoltarFiliais');
   const listaFiliaisEl = document.getElementById('listaFiliais');
   const filialAtualEl = document.getElementById('filialAtual');
@@ -831,6 +846,26 @@ document.addEventListener('DOMContentLoaded', () => {
   
   btnVoltarHistorico.addEventListener('click', () => {
     mostrarTelaCtrcList();
+  });
+
+  btnExportarHistorico.addEventListener('click', () => {
+    const historico = pickingManager.getHistorico();
+    if (!historico || historico.length === 0) {
+      UIComponents.showWarning('Nenhum histórico para exportar');
+      return;
+    }
+
+    const dataStr = JSON.stringify(historico, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = `historico_picking_${new Date().toISOString().slice(0,10)}.json`;
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+
+    UIComponents.showSuccess('Histórico exportado com sucesso!');
   });
   
   // ========== HISTÓRICO ==========

@@ -1,9 +1,13 @@
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, jsonify, send_from_directory, request, render_template
 from flask_cors import CORS
+from dotenv import load_dotenv
 import os
 import logging
 from datetime import datetime
 import json
+
+# Carrega variáveis de ambiente
+load_dotenv()
 
 # Configuração de logging estruturado
 logging.basicConfig(
@@ -16,7 +20,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+# Define caminhos para templates e arquivos estáticos
+base_dir = os.path.abspath(os.path.dirname(__file__))
+template_dir = os.path.join(base_dir, '../frontend/templates')
+static_dir = os.path.join(base_dir, '../frontend/static')
+
+app = Flask(__name__,
+            template_folder=template_dir,
+            static_folder=static_dir,
+            static_url_path='/static')
 
 # Configuração CORS
 CORS(app, resources={
@@ -27,11 +39,19 @@ CORS(app, resources={
     }
 })
 
-# Rota para servir arquivos estáticos
+# Rota para servir a aplicação principal
 @app.route('/')
 def index():
     logger.info('Acesso à página inicial')
-    return send_from_directory('.', 'index_v2.html')
+    return render_template('index_v2.html')
+
+# API para fornecer configurações ao frontend
+@app.route('/api/config')
+def get_config():
+    return jsonify({
+        "API_URL": os.environ.get('API_URL', 'https://tritton.dev.br/webhook/picking-process'),
+        "VERSION": "2.0"
+    })
 
 # API para verificar saúde do servidor
 @app.route('/api/health')
@@ -104,11 +124,10 @@ def validar_ctrc(ctrc):
         return False
     return len(ctrc.strip()) > 0
 
-# Rota para outros arquivos estáticos
-@app.route('/<path:path>')
-def static_files(path):
-    logger.debug(f'Acesso a arquivo estático: {path}')
-    return send_from_directory('.', path)
+# Rota para favicon e outros arquivos na raiz se necessário
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.static_folder, 'img'), 'binho.ico')
 
 @app.errorhandler(404)
 def page_not_found(e):
