@@ -130,3 +130,25 @@ def test_proxy_gzip_decompression(client, monkeypatch):
     assert rv.status_code == 200
     json_data = rv.get_json()
     assert json_data and json_data.get('ok') is True
+
+
+def test_proxy_forwards_gzip_when_decompress_fails(client, monkeypatch):
+    """Se a descompressão falhar, o proxy deve repassar Content-Encoding: gzip para o cliente"""
+    class DummyBrokenGzipResp:
+        def __init__(self):
+            # conteúdo inicia com bytes de GZIP, mas imaginemos que algo esteja corrompido
+            self.content = b'\x1f\x8b' + b'BROKEN'
+            self.status_code = 200
+            self.headers = {}
+
+    def fake_request(method, url, headers=None, data=None, cookies=None, allow_redirects=False, stream=False, timeout=None, **kwargs):
+        return DummyBrokenGzipResp()
+
+    # simula falha no gzip.decompress
+    monkeypatch.setattr(app_v2, 'gzip', type('g', (), {'decompress': lambda x: (_ for _ in ()).throw(Exception('broken'))}))
+    monkeypatch.setattr(app_v2.requests, 'request', fake_request)
+
+    rv = client.get('/api/webhook/test-broken-gzip')
+    assert rv.status_code == 200
+    # Deve repassar header Content-Encoding: gzip para o cliente
+    assert 'Content-Encoding' in rv.headers and rv.headers['Content-Encoding'].lower() == 'gzip'

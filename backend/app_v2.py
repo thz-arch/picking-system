@@ -69,28 +69,39 @@ def generic_proxy(target_url):
             timeout=30
         )
 
-        # Remove headers que podem causar problemas
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        headers = [(name, value) for (name, value) in resp.headers.items() if name.lower() not in excluded_headers]
+        # Remove headers que podem causar problemas (serão ajustados abaixo)
+        excluded_headers = ['content-length', 'transfer-encoding', 'connection']
+        final_headers = {name: value for (name, value) in resp.headers.items() if name.lower() not in excluded_headers}
 
         # Garante que respostas comprimidas (gzip) sejam descompactadas antes de repassar
         content = resp.content
+        content_encoding = (resp.headers.get('content-encoding') or '').lower()
+        decompressed = False
+
         try:
-            content_encoding = resp.headers.get('content-encoding', '') or ''
-            if content_encoding.lower() == 'gzip' or (isinstance(content, (bytes, bytearray)) and content.startswith(b"\x1f\x8b")):
+            if content_encoding == 'gzip' or (isinstance(content, (bytes, bytearray)) and content.startswith(b"\x1f\x8b")):
                 try:
                     content = gzip.decompress(content)
+                    decompressed = True
                     logger.info(f"Decompressed gzip response from {target_url}")
                 except Exception as e:
-                    logger.warning(f"Falha ao descompactar resposta gzip: {e}")
+                    # Se falhar ao descompactar, deixamos o conteúdo original e sinalizamos para o cliente que está comprimido
+                    logger.warning(f"Falha ao descompactar resposta gzip: {e}; will forward as gzip")
+                    final_headers['Content-Encoding'] = 'gzip'
 
-        except Exception:
-            # fallback: ignore decompression errors and use raw content
-            pass
+        except Exception as e:
+            logger.warning(f"Erro inesperado ao tratar compressao: {e}")
 
-        logger.info(f'Proxy response: {resp.status_code} content-type={resp.headers.get("content-type")} content-length={len(content)}')
+        # Se descompactamos com sucesso, garantimos que o header Content-Encoding NÃO seja repassado
+        if decompressed and 'Content-Encoding' in final_headers:
+            final_headers.pop('Content-Encoding', None)
 
-        return Response(content, status=resp.status_code, headers=headers, content_type=resp.headers.get('content-type'))
+        logger.info(f'Proxy response: {resp.status_code} content-type={resp.headers.get("content-type")} content-length={len(content)} decompressed={decompressed}')
+
+        # Converte headers para lista de tuplas para resposta
+        headers_list = [(k, v) for k, v in final_headers.items()]
+
+        return Response(content, status=resp.status_code, headers=headers_list, content_type=resp.headers.get('content-type'))
     except requests.exceptions.ConnectionError:
         return jsonify({"error": "Servidor destino não disponível", "url": target_url}), 503
 
