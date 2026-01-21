@@ -9,7 +9,7 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Configurações
-$venvPath = "C:/Users/user/picking/.venv/Scripts/python.exe"
+$venvPath = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
 $backendPath = "backend/app_v2.py"
 $checklistPath = "checklist"
 
