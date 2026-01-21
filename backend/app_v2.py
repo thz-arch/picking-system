@@ -155,12 +155,36 @@ def generic_proxy(target_url):
 @app.route('/checklist')
 @app.route('/checklist/')
 def checklist_index():
-    logger.info('Proxy: Acesso à página do Checklist')
-    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/checklist/')
+    logger.info('Acesso à página do Checklist (gateway)')
+    # Tenta usar o dev server do Vite, se estiver disponível
+    try:
+        probe = requests.get(CHECKLIST_DEV_SERVER, timeout=1)
+        return generic_proxy(f'{CHECKLIST_DEV_SERVER}/checklist/')
+    except requests.exceptions.RequestException:
+        # Fallback: serve a build estática em checklist/dist se disponível
+        try:
+            logger.info('Dev server não disponível, servindo build de ./checklist/dist')
+            return send_from_directory(checklist_dir, 'index.html')
+        except Exception as e:
+            logger.error(f'Erro ao servir build do checklist: {e}')
+            return jsonify({"error": "Checklist não disponível"}), 503
 
 @app.route('/checklist/<path:path>')
 def checklist_proxy(path):
-    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/checklist/{path}')
+    # Primeiro tenta proxy pro dev server, se falhar serve arquivos estáticos da build
+    try:
+        probe = requests.get(CHECKLIST_DEV_SERVER, timeout=1)
+        return generic_proxy(f'{CHECKLIST_DEV_SERVER}/checklist/{path}')
+    except requests.exceptions.RequestException:
+        # Serve arquivos estáticos gerados pela build (dist)
+        local_path = os.path.join(checklist_dir, path)
+        if os.path.exists(local_path):
+            rel_dir = os.path.relpath(checklist_dir, checklist_dir)
+            # send_from_directory usa o diretório base
+            return send_from_directory(checklist_dir, path)
+        else:
+            logger.warning(f'Arquivo do checklist não encontrado no build: {path}')
+            return jsonify({"error": "Arquivo do checklist não encontrado"}), 404
 
 # Rotas para recursos internos do Vite (evitar 404 no dev server proxied)
 @app.route('/@react-refresh')
