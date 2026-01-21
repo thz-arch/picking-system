@@ -73,3 +73,38 @@ def test_ssw_proxy(client, monkeypatch):
 
     rv = client.get('/ssw/some/path')
     assert rv.status_code == 200
+
+
+def test_vite_internal_endpoints(client, monkeypatch):
+    """Testa o proxy para endpoints internos do Vite"""
+    class DummyRespHTML:
+        def __init__(self):
+            self.content = b'<html></html>'
+            self.status_code = 200
+            self.raw = type('r', (), {'headers': {'content-type': 'text/html'}})()
+            self.headers = {'content-type': 'text/html'}
+
+    class DummyRespJS:
+        def __init__(self):
+            self.content = b'console.log(1)'
+            self.status_code = 200
+            self.raw = type('r', (), {'headers': {'content-type': 'application/javascript'}})()
+            self.headers = {'content-type': 'application/javascript'}
+
+    def fake_request(method, url, headers=None, data=None, cookies=None, allow_redirects=False, stream=False, **kwargs):
+        if '@react-refresh' in url:
+            return DummyRespHTML()
+        if url.endswith('/src/main.jsx') or '/src/' in url:
+            return DummyRespJS()
+        return DummyRespHTML()
+
+    monkeypatch.setattr(app_v2.requests, 'request', fake_request)
+
+    rv = client.get('/@react-refresh')
+    assert rv.status_code == 200
+
+    rv = client.get('/src/main.jsx')
+    assert rv.status_code == 200
+
+    rv = client.get('/@vite/client')
+    assert rv.status_code == 200
