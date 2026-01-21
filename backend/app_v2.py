@@ -48,8 +48,8 @@ def index():
     logger.info('Acesso à página inicial - Picking')
     return render_template('index_v2.html')
 
-# Proxy para o Checklist (Vite dev server na porta 5173)
-CHECKLIST_DEV_SERVER = 'http://localhost:5173'
+# Proxy para o Checklist (dev server) - temporarily using alternative port while diagnosing 5173
+CHECKLIST_DEV_SERVER = 'http://localhost:5174'
 
 def generic_proxy(target_url):
     """Função genérica para proxy de requisições"""
