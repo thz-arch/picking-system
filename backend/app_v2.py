@@ -126,7 +126,18 @@ def generic_proxy(target_url):
                         final_headers = {name: value for (name, value) in resp.headers.items() if name.lower() not in excluded_headers}
                         continue
                     else:
-                        logger.error('Max retries reached and upstream did not return valid JSON')
+                        # Log useful debug info: headers snippet and first bytes (safe-limited)
+                        try:
+                            snippet = resp.content[:1024]
+                            # try decode for logging, fallback to repr
+                            try:
+                                snippet_text = snippet.decode('utf-8', errors='replace')
+                            except Exception:
+                                snippet_text = repr(snippet)
+                        except Exception as e:
+                            snippet_text = f'<could not read snippet: {e}>'
+
+                        logger.error('Max retries reached and upstream did not return valid JSON. Upstream status: %s Headers: %s Snippet: %s', resp.status_code, dict(resp.headers), snippet_text)
                         break
             else:
                 # Se não parece JSON, apenas repassamos o conteúdo (pode ser HTML ou outro tipo)
