@@ -108,3 +108,25 @@ def test_vite_internal_endpoints(client, monkeypatch):
 
     rv = client.get('/@vite/client')
     assert rv.status_code == 200
+
+
+def test_proxy_gzip_decompression(client, monkeypatch):
+    """Testa que a proxy descomprime respostas gzip antes de repassar"""
+    import gzip as _gzip
+
+    class DummyGzipResp:
+        def __init__(self):
+            raw = b'{"ok": true}'
+            self.content = _gzip.compress(raw)
+            self.status_code = 200
+            self.headers = {'content-type': 'application/json', 'content-encoding': 'gzip'}
+
+    def fake_request(method, url, headers=None, data=None, cookies=None, allow_redirects=False, stream=False, timeout=None, **kwargs):
+        return DummyGzipResp()
+
+    monkeypatch.setattr(app_v2.requests, 'request', fake_request)
+
+    rv = client.get('/api/webhook/test-gzip')
+    assert rv.status_code == 200
+    json_data = rv.get_json()
+    assert json_data and json_data.get('ok') is True

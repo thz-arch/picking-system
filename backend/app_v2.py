@@ -6,6 +6,7 @@ import logging
 from datetime import datetime
 import json
 import requests
+import gzip
 
 # Carrega variáveis de ambiente
 load_dotenv()
@@ -56,23 +57,40 @@ def generic_proxy(target_url):
         query_string = request.query_string.decode('utf-8')
         if query_string:
             target_url += f"{'&' if '?' in target_url else '?'}{query_string}"
-            
-        # Repassa a requisição com o mesmo método e corpo
+
+        # Repassa a requisição com o mesmo método e corpo (não usar stream=True para garantir decodificação automática)
         resp = requests.request(
             method=request.method,
             url=target_url,
             headers={key: value for (key, value) in request.headers if key.lower() != 'host'},
             data=request.get_data(),
             cookies=request.cookies,
-            allow_redirects=False,
-            stream=True
+            allow_redirects=True,
+            timeout=30
         )
-        
+
         # Remove headers que podem causar problemas
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
-        
-        return Response(resp.content, status=resp.status_code, headers=headers)
+        headers = [(name, value) for (name, value) in resp.headers.items() if name.lower() not in excluded_headers]
+
+        # Garante que respostas comprimidas (gzip) sejam descompactadas antes de repassar
+        content = resp.content
+        try:
+            content_encoding = resp.headers.get('content-encoding', '') or ''
+            if content_encoding.lower() == 'gzip' or (isinstance(content, (bytes, bytearray)) and content.startswith(b"\x1f\x8b")):
+                try:
+                    content = gzip.decompress(content)
+                    logger.info(f"Decompressed gzip response from {target_url}")
+                except Exception as e:
+                    logger.warning(f"Falha ao descompactar resposta gzip: {e}")
+
+        except Exception:
+            # fallback: ignore decompression errors and use raw content
+            pass
+
+        logger.info(f'Proxy response: {resp.status_code} content-type={resp.headers.get("content-type")} content-length={len(content)}')
+
+        return Response(content, status=resp.status_code, headers=headers, content_type=resp.headers.get('content-type'))
     except requests.exceptions.ConnectionError:
         return jsonify({"error": "Servidor destino não disponível", "url": target_url}), 503
 
