@@ -86,6 +86,27 @@ def checklist_index():
 def checklist_proxy(path):
     return generic_proxy(f'{CHECKLIST_DEV_SERVER}/checklist/{path}')
 
+# Rotas para recursos internos do Vite (evitar 404 no dev server proxied)
+@app.route('/@react-refresh')
+def vite_react_refresh():
+    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/@react-refresh')
+
+@app.route('/@vite/<path:path>')
+def vite_internal(path):
+    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/@vite/{path}')
+
+@app.route('/@fs/<path:path>')
+def vite_fs(path):
+    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/@fs/{path}')
+
+@app.route('/src/<path:path>')
+def vite_src(path):
+    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/src/{path}')
+
+@app.route('/node_modules/<path:path>')
+def vite_node_modules(path):
+    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/node_modules/{path}')
+
 @app.route('/api/webhook/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def api_webhook_proxy(path):
     logger.info(f'Proxy API Webhook: {path}')
