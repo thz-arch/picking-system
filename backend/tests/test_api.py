@@ -183,3 +183,36 @@ def test_proxy_forwards_gzip_when_decompress_fails(client, monkeypatch):
     assert rv.status_code == 200
     # Deve repassar header Content-Encoding: gzip para o cliente
     assert 'Content-Encoding' in rv.headers and rv.headers['Content-Encoding'].lower() == 'gzip'
+
+
+def test_checklist_fallback_serves_index(client, monkeypatch):
+    """Quando o dev server está indisponível, deve servir o index.html da build"""
+    import requests as real_requests
+
+    def fake_get(url, timeout=None):
+        # simula indisponibilidade do dev server
+        raise real_requests.exceptions.RequestException('dev server down')
+
+    monkeypatch.setattr(app_v2.requests, 'get', fake_get)
+
+    rv = client.get('/checklist')
+    # index.html existe no dist no workspace
+    assert rv.status_code == 200
+    assert b'<!doctype html' in rv.data.lower() or b'<html' in rv.data.lower()
+
+
+def test_checklist_fallback_missing_index_returns_503(client, monkeypatch, tmp_path):
+    """Se o index.html não existir, retorna 503"""
+    import requests as real_requests
+
+    def fake_get(url, timeout=None):
+        raise real_requests.exceptions.RequestException('dev server down')
+
+    monkeypatch.setattr(app_v2.requests, 'get', fake_get)
+
+    # força os caminhos a apontarem para um dir vazio temporário
+    monkeypatch.setattr(app_v2, 'checklist_dir', str(tmp_path))
+
+    rv = client.get('/checklist')
+    assert rv.status_code == 503
+    assert rv.get_json()['error'] == 'Checklist não disponível'

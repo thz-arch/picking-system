@@ -162,11 +162,18 @@ def checklist_index():
         return generic_proxy(f'{CHECKLIST_DEV_SERVER}/checklist/')
     except requests.exceptions.RequestException:
         # Fallback: serve a build estática em checklist/dist se disponível
+        logger.info('Dev server não disponível, tentando servir build de ./checklist/dist')
+        index_file = os.path.join(checklist_dir, 'index.html')
         try:
-            logger.info('Dev server não disponível, servindo build de ./checklist/dist')
-            return send_from_directory(checklist_dir, 'index.html')
+            if os.path.exists(index_file):
+                logger.info(f'Serving checklist index from {index_file}')
+                from flask import send_file
+                return send_file(index_file)
+            else:
+                logger.error(f'Checklist build index.html not found at {index_file}')
+                return jsonify({"error": "Checklist não disponível"}), 503
         except Exception as e:
-            logger.error(f'Erro ao servir build do checklist: {e}')
+            logger.exception(f'Erro ao servir build do checklist: {e}')
             return jsonify({"error": "Checklist não disponível"}), 503
 
 @app.route('/checklist/<path:path>')
@@ -178,13 +185,21 @@ def checklist_proxy(path):
     except requests.exceptions.RequestException:
         # Serve arquivos estáticos gerados pela build (dist)
         local_path = os.path.join(checklist_dir, path)
-        if os.path.exists(local_path):
-            rel_dir = os.path.relpath(checklist_dir, checklist_dir)
-            # send_from_directory usa o diretório base
-            return send_from_directory(checklist_dir, path)
-        else:
-            logger.warning(f'Arquivo do checklist não encontrado no build: {path}')
-            return jsonify({"error": "Arquivo do checklist não encontrado"}), 404
+        try:
+            if os.path.exists(local_path):
+                return send_from_directory(checklist_dir, path)
+            else:
+                # If the requested path looks like a SPA route (no extension), serve index.html
+                if '.' not in path:
+                    index_file = os.path.join(checklist_dir, 'index.html')
+                    if os.path.exists(index_file):
+                        from flask import send_file
+                        return send_file(index_file)
+                logger.warning(f'Arquivo do checklist não encontrado no build: {path}')
+                return jsonify({"error": "Arquivo do checklist não encontrado"}), 404
+        except Exception as e:
+            logger.exception(f'Erro ao servir arquivo do checklist: {e}')
+            return jsonify({"error": "Erro ao acessar build do checklist"}), 500
 
 # Rotas para recursos internos do Vite (evitar 404 no dev server proxied)
 @app.route('/@react-refresh')
