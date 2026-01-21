@@ -132,6 +132,37 @@ def test_proxy_gzip_decompression(client, monkeypatch):
     assert json_data and json_data.get('ok') is True
 
 
+def test_proxy_retries_until_json(client, monkeypatch):
+    """Se o upstream retornar algo não JSON inicialmente, o proxy deve retry e aceitar quando virar JSON"""
+    class Resp1:
+        def __init__(self):
+            self.content = b'NOT_JSON'
+            self.status_code = 200
+            self.headers = {'content-type': 'application/json'}
+
+    class Resp2:
+        def __init__(self):
+            self.content = b'[{"ok": true}]'
+            self.status_code = 200
+            self.headers = {'content-type': 'application/json'}
+
+    calls = {'n': 0}
+    def fake_request(method, url, headers=None, data=None, cookies=None, allow_redirects=False, stream=False, timeout=None, **kwargs):
+        calls['n'] += 1
+        if calls['n'] == 1:
+            return Resp1()
+        else:
+            return Resp2()
+
+    monkeypatch.setattr(app_v2.requests, 'request', fake_request)
+
+    rv = client.get('/api/webhook/test-retry')
+    assert rv.status_code == 200
+    # agora deve devolver JSON parseável (array)
+    assert rv.get_json() and isinstance(rv.get_json(), list) and rv.get_json()[0].get('ok') is True
+    assert calls['n'] >= 2
+
+
 def test_proxy_forwards_gzip_when_decompress_fails(client, monkeypatch):
     """Se a descompressão falhar, o proxy deve repassar Content-Encoding: gzip para o cliente"""
     class DummyBrokenGzipResp:

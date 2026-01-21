@@ -73,30 +73,66 @@ def generic_proxy(target_url):
         excluded_headers = ['content-length', 'transfer-encoding', 'connection']
         final_headers = {name: value for (name, value) in resp.headers.items() if name.lower() not in excluded_headers}
 
-        # Garante que respostas comprimidas (gzip) sejam descompactadas antes de repassar
-        content = resp.content
-        content_encoding = (resp.headers.get('content-encoding') or '').lower()
-        decompressed = False
+        # Tentativas em caso de retorno incompleto do webhook (por exemplo: webhook iniciando stream)
+        MAX_RETRIES = 3
+        RETRY_DELAYS = [0.5, 1.0, 2.0]
 
-        try:
-            if content_encoding == 'gzip' or (isinstance(content, (bytes, bytearray)) and content.startswith(b"\x1f\x8b")):
+        attempt = 0
+        while True:
+            # Trata compressao (gzip) caso necessário
+            content = resp.content
+            content_encoding = (resp.headers.get('content-encoding') or '').lower()
+            decompressed = False
+
+            try:
+                if content_encoding == 'gzip' or (isinstance(content, (bytes, bytearray)) and content.startswith(b"\x1f\x8b")):
+                    try:
+                        content = gzip.decompress(content)
+                        decompressed = True
+                        logger.info(f"Decompressed gzip response from {target_url}")
+                    except Exception as e:
+                        logger.warning(f"Falha ao descompactar resposta gzip: {e}; will forward as gzip")
+                        final_headers['Content-Encoding'] = 'gzip'
+
+            except Exception as e:
+                logger.warning(f"Erro inesperado ao tratar compressao: {e}")
+
+            # Se descompactamos com sucesso, garantimos que o header Content-Encoding NÃO seja repassado
+            if decompressed and 'Content-Encoding' in final_headers:
+                final_headers.pop('Content-Encoding', None)
+
+            # Se o content-type claramente indica JSON, tentamos validar que o conteúdo seja JSON decodificável
+            content_type = resp.headers.get('content-type', '') or ''
+            looks_like_json = 'application/json' in content_type.lower()
+
+            if looks_like_json:
                 try:
-                    content = gzip.decompress(content)
-                    decompressed = True
-                    logger.info(f"Decompressed gzip response from {target_url}")
+                    # Tenta decodificar como UTF-8 e carregar JSON
+                    _ = json.loads(content.decode('utf-8'))
+                    # sucesso -> vamos repassar a resposta
+                    logger.info('Proxy verified valid JSON from upstream')
+                    break
                 except Exception as e:
-                    # Se falhar ao descompactar, deixamos o conteúdo original e sinalizamos para o cliente que está comprimido
-                    logger.warning(f"Falha ao descompactar resposta gzip: {e}; will forward as gzip")
-                    final_headers['Content-Encoding'] = 'gzip'
+                    # Se não é JSON e ainda temos tentativas, espera e tenta novamente
+                    attempt += 1
+                    logger.warning(f'Upstream returned invalid JSON (attempt {attempt}): {e}')
+                    if attempt <= MAX_RETRIES:
+                        delay = RETRY_DELAYS[min(attempt-1, len(RETRY_DELAYS)-1)]
+                        logger.info(f'Retrying request to {target_url} after {delay}s')
+                        import time
+                        time.sleep(delay)
+                        resp = requests.request(method=request.method, url=target_url, headers={key: value for (key, value) in request.headers if key.lower() != 'host'}, data=request.get_data(), cookies=request.cookies, allow_redirects=True, timeout=30)
+                        # refresh headers list
+                        final_headers = {name: value for (name, value) in resp.headers.items() if name.lower() not in excluded_headers}
+                        continue
+                    else:
+                        logger.error('Max retries reached and upstream did not return valid JSON')
+                        break
+            else:
+                # Se não parece JSON, apenas repassamos o conteúdo (pode ser HTML ou outro tipo)
+                break
 
-        except Exception as e:
-            logger.warning(f"Erro inesperado ao tratar compressao: {e}")
-
-        # Se descompactamos com sucesso, garantimos que o header Content-Encoding NÃO seja repassado
-        if decompressed and 'Content-Encoding' in final_headers:
-            final_headers.pop('Content-Encoding', None)
-
-        logger.info(f'Proxy response: {resp.status_code} content-type={resp.headers.get("content-type")} content-length={len(content)} decompressed={decompressed}')
+        logger.info(f'Proxy response: {resp.status_code} content-type={resp.headers.get("content-type")} content-length={len(content)} decompressed={decompressed} attempts={attempt}')
 
         # Converte headers para lista de tuplas para resposta
         headers_list = [(k, v) for k, v in final_headers.items()]
