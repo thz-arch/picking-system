@@ -50,24 +50,23 @@ def index():
 # Proxy para o Checklist (Vite dev server na porta 5173)
 CHECKLIST_DEV_SERVER = 'http://localhost:5173'
 
-@app.route('/checklist')
-@app.route('/checklist/')
-def checklist_index():
-    logger.info('Proxy: Acesso à página do Checklist')
+def generic_proxy(target_url):
+    """Função genérica para proxy de requisições"""
     try:
-        resp = requests.get(f'{CHECKLIST_DEV_SERVER}/')
-        return Response(resp.content, status=resp.status_code, content_type=resp.headers.get('content-type'))
-    except requests.exceptions.ConnectionError:
-        return jsonify({
-            "error": "Checklist não disponível", 
-            "message": "Servidor Vite não está rodando na porta 5173"
-        }), 503
-
-@app.route('/checklist/<path:path>')
-def checklist_proxy(path):
-    try:
-        url = f'{CHECKLIST_DEV_SERVER}/{path}'
-        resp = requests.get(url, stream=True)
+        query_string = request.query_string.decode('utf-8')
+        if query_string:
+            target_url += f"{'&' if '?' in target_url else '?'}{query_string}"
+            
+        # Repassa a requisição com o mesmo método e corpo
+        resp = requests.request(
+            method=request.method,
+            url=target_url,
+            headers={key: value for (key, value) in request.headers if key.lower() != 'host'},
+            data=request.get_data(),
+            cookies=request.cookies,
+            allow_redirects=False,
+            stream=True
+        )
         
         # Remove headers que podem causar problemas
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
@@ -75,7 +74,27 @@ def checklist_proxy(path):
         
         return Response(resp.content, status=resp.status_code, headers=headers)
     except requests.exceptions.ConnectionError:
-        return jsonify({"error": "Checklist dev server não disponível"}), 503
+        return jsonify({"error": "Servidor destino não disponível", "url": target_url}), 503
+
+@app.route('/checklist')
+@app.route('/checklist/')
+def checklist_index():
+    logger.info('Proxy: Acesso à página do Checklist')
+    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/checklist/')
+
+@app.route('/checklist/<path:path>')
+def checklist_proxy(path):
+    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/checklist/{path}')
+
+@app.route('/api/webhook/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def api_webhook_proxy(path):
+    logger.info(f'Proxy API Webhook: {path}')
+    return generic_proxy(f'https://tritton.dev.br/webhook/{path}')
+
+@app.route('/ssw/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def ssw_proxy(path):
+    logger.info(f'Proxy SSW: {path}')
+    return generic_proxy(f'https://sistema.ssw.inf.br/{path}')
 
 # API para fornecer configurações ao frontend
 @app.route('/api/config')

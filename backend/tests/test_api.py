@@ -6,6 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app_v2 import app
+import app_v2
 
 @pytest.fixture
 def client():
@@ -36,3 +37,39 @@ def test_filiais(client):
     assert isinstance(json_data, list)
     assert len(json_data) > 0
     assert json_data[0]['sigla'] == 'GYN'
+
+
+def test_api_webhook_proxy(client, monkeypatch):
+    """Testa o proxy para /api/webhook usando mock de requests"""
+    class DummyResp:
+        def __init__(self):
+            self.content = b'{"ok": true}'
+            self.status_code = 200
+            self.raw = type('r', (), {'headers': {'content-type': 'application/json'}})()
+            self.headers = {'content-type': 'application/json'}
+
+    def fake_request(method, url, headers=None, data=None, cookies=None, allow_redirects=False, stream=False, **kwargs):
+        return DummyResp()
+
+    monkeypatch.setattr(app_v2.requests, 'request', fake_request)
+
+    rv = client.get('/api/webhook/test-path')
+    assert rv.status_code == 200
+
+
+def test_ssw_proxy(client, monkeypatch):
+    """Testa o proxy para /ssw usando mock de requests"""
+    class DummyResp:
+        def __init__(self):
+            self.content = b'OK'
+            self.status_code = 200
+            self.raw = type('r', (), {'headers': {'content-type': 'text/plain'}})()
+            self.headers = {'content-type': 'text/plain'}
+
+    def fake_request(method, url, headers=None, data=None, cookies=None, allow_redirects=False, stream=False, **kwargs):
+        return DummyResp()
+
+    monkeypatch.setattr(app_v2.requests, 'request', fake_request)
+
+    rv = client.get('/ssw/some/path')
+    assert rv.status_code == 200
