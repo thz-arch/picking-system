@@ -7,7 +7,8 @@ export default defineConfig({
   server: {
     hmr: {
       host: 'localhost',
-      port: 5173,
+      port: 5174,
+      clientPort: 5174,
       protocol: 'ws'
     },
     proxy: {

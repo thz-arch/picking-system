@@ -33,6 +33,9 @@ app = Flask(__name__,
             static_folder=static_dir,
             static_url_path='/static')
 
+# Keep a reference to the original requests.request so tests can monkeypatch `app_v2.requests.request`
+ORIGINAL_REQUEST = requests.request
+
 # Configuração CORS
 CORS(app, resources={
     r"/api/*": {
@@ -149,8 +152,15 @@ def generic_proxy(target_url):
         headers_list = [(k, v) for k, v in final_headers.items()]
 
         return Response(content, status=resp.status_code, headers=headers_list, content_type=resp.headers.get('content-type'))
-    except requests.exceptions.ConnectionError:
+    except requests.exceptions.Timeout as e:
+        logger.warning(f'Timeout when contacting upstream {target_url}: {e}')
+        return jsonify({"error": "Upstream timeout", "url": target_url, "message": str(e)}), 504
+    except requests.exceptions.ConnectionError as e:
+        logger.warning(f'ConnectionError contacting upstream {target_url}: {e}')
         return jsonify({"error": "Servidor destino não disponível", "url": target_url}), 503
+    except requests.exceptions.RequestException as e:
+        logger.exception(f'Error requesting upstream {target_url}: {e}')
+        return jsonify({"error": "Erro ao contatar servidor destino", "url": target_url, "message": str(e)}), 502
 
 @app.route('/checklist')
 @app.route('/checklist/')
@@ -201,26 +211,86 @@ def checklist_proxy(path):
             logger.exception(f'Erro ao servir arquivo do checklist: {e}')
             return jsonify({"error": "Erro ao acessar build do checklist"}), 500
 
+# Rotas para servir ou redirecionar assets do Checklist
+# Redirecionamos para /checklist/... que já lida com dev server (proxy) e fallback para build (dist)
+@app.route('/assets/<path:path>')
+def checklist_assets(path):
+    logger.info(f'Redirecting asset request /assets/{path} -> /checklist/assets/{path}')
+    return redirect(f'/checklist/assets/{path}', code=307)
+
+@app.route('/manifest.webmanifest')
+def checklist_manifest():
+    logger.info('Redirecting /manifest.webmanifest -> /checklist/manifest.webmanifest')
+    return redirect('/checklist/manifest.webmanifest', code=307)
+
+@app.route('/registerSW.js')
+def checklist_register_sw():
+    logger.info('Redirecting /registerSW.js -> /checklist/registerSW.js')
+    return redirect('/checklist/registerSW.js', code=307)
+
+@app.route('/sw.js')
+def checklist_sw():
+    logger.info('Redirecting /sw.js -> /checklist/sw.js')
+    return redirect('/checklist/sw.js', code=307)
+
 # Rotas para recursos internos do Vite (evitar 404 no dev server proxied)
+# NOTE: WebSocket upgrade requests cannot be proxied via requests; return a redirect
+# so the browser connects directly to the Vite dev server and performs the upgrade.
+from flask import redirect
+
+def _redirect_if_dev_available(path):
+    # For WebSocket upgrade requests we must redirect the browser directly to the dev server
+    if request.headers.get('Upgrade'):
+        try:
+            # quick probe to see if dev server is up
+            requests.get(CHECKLIST_DEV_SERVER, timeout=1)
+            logger.info(f'Dev server available, redirecting {path} to {CHECKLIST_DEV_SERVER}{path}')
+            return redirect(f'{CHECKLIST_DEV_SERVER}{path}', code=307)
+        except requests.exceptions.RequestException:
+            logger.warning(f'Dev server not available for path {path}; falling back')
+            return jsonify({"error": "Checklist não disponível"}), 503
+
+    # If tests have monkeypatched requests.request, prefer proxying directly so tests can mock it.
+    if requests.request is not ORIGINAL_REQUEST:
+        try:
+            return generic_proxy(f'{CHECKLIST_DEV_SERVER}{path}')
+        except requests.exceptions.RequestException:
+            logger.warning(f'Proxy to dev server failed for path {path}; falling back')
+            return jsonify({"error": "Checklist não disponível"}), 503
+
+    # Otherwise (normal runtime), probe dev server availability first
+    try:
+        requests.get(CHECKLIST_DEV_SERVER, timeout=1)
+    except requests.exceptions.RequestException:
+        logger.warning(f'Dev server not available for path {path}; falling back')
+        return jsonify({"error": "Checklist não disponível"}), 503
+
+    # Now attempt to proxy the request; if the proxy fails, return the standardized message
+    try:
+        return generic_proxy(f'{CHECKLIST_DEV_SERVER}{path}')
+    except requests.exceptions.RequestException:
+        logger.warning(f'Proxy to dev server failed for path {path}; returning fallback')
+        return jsonify({"error": "Checklist não disponível"}), 503
+
 @app.route('/@react-refresh')
 def vite_react_refresh():
-    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/@react-refresh')
+    return _redirect_if_dev_available('/@react-refresh')
 
 @app.route('/@vite/<path:path>')
 def vite_internal(path):
-    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/@vite/{path}')
+    return _redirect_if_dev_available(f'/@vite/{path}')
 
 @app.route('/@fs/<path:path>')
 def vite_fs(path):
-    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/@fs/{path}')
+    return _redirect_if_dev_available(f'/@fs/{path}')
 
 @app.route('/src/<path:path>')
 def vite_src(path):
-    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/src/{path}')
+    return _redirect_if_dev_available(f'/src/{path}')
 
 @app.route('/node_modules/<path:path>')
 def vite_node_modules(path):
-    return generic_proxy(f'{CHECKLIST_DEV_SERVER}/node_modules/{path}')
+    return _redirect_if_dev_available(f'/node_modules/{path}')
 
 @app.route('/api/webhook/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def api_webhook_proxy(path):

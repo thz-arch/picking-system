@@ -110,6 +110,20 @@ def test_vite_internal_endpoints(client, monkeypatch):
     assert rv.status_code == 200
 
 
+def test_vite_redirect_probe_fallback(client, monkeypatch):
+    """Se o dev server estiver down, endpoints internos do Vite devem retornar 503"""
+    import requests as real_requests
+
+    def fake_get(url, timeout=None):
+        raise real_requests.exceptions.RequestException('dev server down')
+
+    monkeypatch.setattr(app_v2.requests, 'get', fake_get)
+
+    rv = client.get('/@vite/client')
+    assert rv.status_code == 503
+    assert rv.get_json()['error'] == 'Checklist não disponível'
+
+
 def test_proxy_gzip_decompression(client, monkeypatch):
     """Testa que a proxy descomprime respostas gzip antes de repassar"""
     import gzip as _gzip

@@ -46,49 +46,42 @@ Write-Host "[OK] Backend encontrado" -ForegroundColor Green
 Write-Host "[OK] Checklist encontrado" -ForegroundColor Green
 Write-Host ""
 
-# Inicia o Checklist (Vite dev server) em background
-Write-Host "Iniciando Checklist dev server (porta 5173 - interno)..." -ForegroundColor Yellow
-Set-Location $checklistPath
-$checklistJob = Start-Job -ScriptBlock {
-    param($path)
-    Set-Location $path
-    npm run dev
-} -ArgumentList (Get-Location).Path
-Set-Location ..
-Start-Sleep -Seconds 10
+# Inicia o Checklist (Vite dev server) e Backend em processos detached com logs/pids
+Write-Host "Iniciando Checklist dev server (detached, porta 5174) e Backend Flask (detached)" -ForegroundColor Yellow
 
-# Inicia o backend (Flask com proxy)
-Write-Host "Iniciando Backend Flask (porta 8000)..." -ForegroundColor Yellow
-Write-Host ""
+# Cria pastas de logs e pids
+$logsDir = Join-Path $PSScriptRoot 'logs'
+$pidsDir = Join-Path $logsDir 'pids'
+New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+New-Item -ItemType Directory -Path $pidsDir -Force | Out-Null
+
+# Start Vite via npm (npm.cmd on Windows) in detached process
+$npm = 'npm.cmd'
+$viteLog = Join-Path $logsDir 'vite.log'
+$viteErr = Join-Path $logsDir 'vite.err'
+$viteArgs = @('run','dev','--','--host','127.0.0.1','--port','5174')
+Write-Host "Starting Vite: $npm $($viteArgs -join ' ') (working dir: $checklistPath)" -ForegroundColor Cyan
+$viteProc = Start-Process -FilePath $npm -ArgumentList $viteArgs -WorkingDirectory (Join-Path $PSScriptRoot $checklistPath) -RedirectStandardOutput $viteLog -RedirectStandardError $viteErr -WindowStyle Hidden -PassThru
+Set-Content -Path (Join-Path $pidsDir 'vite.pid') -Value $viteProc.Id
+Write-Host "Vite PID: $($viteProc.Id)  logs: $viteLog, $viteErr" -ForegroundColor Green
+
+# Start backend (python venv) in detached process
+$backendLog = Join-Path $logsDir 'backend.log'
+$backendErr = Join-Path $logsDir 'backend.err'
+Write-Host "Starting Backend: $venvPath $backendPath" -ForegroundColor Cyan
+$backendProc = Start-Process -FilePath $venvPath -ArgumentList $backendPath -WorkingDirectory $PSScriptRoot -RedirectStandardOutput $backendLog -RedirectStandardError $backendErr -WindowStyle Hidden -PassThru
+Set-Content -Path (Join-Path $pidsDir 'backend.pid') -Value $backendProc.Id
+Write-Host "Backend PID: $($backendProc.Id)  logs: $backendLog, $backendErr" -ForegroundColor Green
+
+Write-Host "";
 Write-Host "========================================" -ForegroundColor Green
-Write-Host "  Sistema Iniciado com Sucesso!" -ForegroundColor Green
+Write-Host "  Sistema Iniciado (detached) com Sucesso!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
-Write-Host ""
+Write-Host "";
 Write-Host "Acesse TUDO na porta 8000:" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "  Picking System:" -ForegroundColor Yellow
-Write-Host "    http://127.0.0.1:8000" -ForegroundColor White
-Write-Host "    http://localhost:8000" -ForegroundColor White
-Write-Host ""
-Write-Host "  Checklist CTRC:" -ForegroundColor Yellow
-Write-Host "    http://127.0.0.1:8000/checklist" -ForegroundColor White
-Write-Host "    http://localhost:8000/checklist" -ForegroundColor White
-Write-Host ""
-Write-Host "  (Checklist roda em modo dev com hot reload!)" -ForegroundColor Gray
-Write-Host ""
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "Pressione Ctrl+C para parar o servidor" -ForegroundColor Yellow
-Write-Host ""
-
-# Inicia o servidor Flask
-try {
-    & $venvPath $backendPath
-} finally {
-    # Cleanup: para o job do Vite quando Flask for interrompido
-    Write-Host ""
-    Write-Host "Encerrando Checklist dev server..." -ForegroundColor Yellow
-    Stop-Job -Job $checklistJob -ErrorAction SilentlyContinue
-    Remove-Job -Job $checklistJob -Force -ErrorAction SilentlyContinue
-    Write-Host "[OK] Sistema encerrado" -ForegroundColor Green
-}
+Write-Host "  http://127.0.0.1:8000" -ForegroundColor White
+Write-Host "  http://127.0.0.1:8000/checklist" -ForegroundColor White
+Write-Host "";
+Write-Host "Logs: $logsDir" -ForegroundColor Gray
+Write-Host "PIDs: $pidsDir" -ForegroundColor Gray
+Write-Host "Para encerrar execute: .\stop_all.ps1" -ForegroundColor Yellow
