@@ -55,7 +55,7 @@ $checklistJob = Start-Job -ScriptBlock {
     npm run dev
 } -ArgumentList (Get-Location).Path
 Set-Location ..
-Start-Sleep -Seconds 3
+Start-Sleep -Seconds 10
 
 # Inicia o backend (Flask com proxy)
 Write-Host "Iniciando Backend Flask (porta 8000)..." -ForegroundColor Yellow
