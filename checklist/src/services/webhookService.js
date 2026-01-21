@@ -222,7 +222,15 @@ export const fetchCTRC = async ({ ctrcNumber, selection }) => {
       }
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (err) {
+      // Tentar obter o texto bruto para debug e jogar um erro mais amigável
+      const text = await response.text().catch(() => null);
+      console.error('Invalid JSON from webhook', { status: response.status, snippet: text ? text.slice(0, 1000) : null });
+      throw new Error('Resposta inválida do webhook: não foi possível decodificar JSON. Veja o console para detalhes.');
+    }
 
     // Se n8n retornar array, pode ser lista de CTRCs (manifesto) ou lista de produtos
     if (Array.isArray(data) && data.length > 0) {
@@ -290,7 +298,14 @@ export const fetchManifesto = async ({ manifestoData, expectedList = null }) => 
       throw new Error('Erro ao buscar manifesto');
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (err) {
+      const text = await response.text().catch(() => null);
+      console.error('Invalid JSON from webhook (manifesto)', { status: response.status, snippet: text ? text.slice(0, 1000) : null });
+      throw new Error('Resposta inválida do webhook: não foi possível decodificar JSON. Veja o console para detalhes.');
+    }
 
     // Normalize several possible manifesto response shapes.
     // Some webhook flows return an array with a single object containing
