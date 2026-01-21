@@ -14,7 +14,7 @@
     "lucide-react": "^0.294.0",
     "jspdf": "^2.5.1",
     "html2canvas": "^1.4.1",
-    "jszip": "^4.1.0"
+    "jszip": "^3.10.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
